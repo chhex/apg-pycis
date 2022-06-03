@@ -102,9 +102,6 @@ setup(
     # by commas, to be used to assist searching for the distribution in a
     # larger catalog.
     keywords="apg, ci, development",  # Optional
-    # When your source code is in a subdirectory under the project root, e.g.
-    # `src/`, it is necessary to specify the `package_dir` argument.
-    package_dir={"": "src"},  # Optional
     # You can just specify package directories manually here if your project is
     # simple. Or you can use find_packages().
     #
@@ -114,7 +111,7 @@ setup(
     #
     #   py_modules=["my_module"],
     #
-    packages=find_packages(where="src"),  # Required
+    packages=["jfuturbr"],  # Required
     # Specify which Python versions you support. In contrast to the
     # 'Programming Language' classifiers above, 'pip install' will check this
     # and refuse to install the project if the version does not match. See
@@ -130,7 +127,8 @@ setup(
         'beautifulsoup4==4.11.1',
         'bs4==0.0.1',
         'lxml==4.8.0',
-        'soupsieve==2.3.2.post1'
+        'soupsieve==2.3.2.post1',
+        'prompt-toolkit==3.0.29'
         ],  # Optional
     # List additional groups of dependencies here (e.g. development
     # dependencies). Users will be able to install these using the "extras"
@@ -147,7 +145,7 @@ setup(
     # If there are data files included in your packages that need to be
     # installed, specify them here.
     package_data={  # Optional
-        "jenk_fut_br": ["jenkins_config.ini"],
+        "jfuturbr": ["config_template.ini"],
     },
     # Although 'package_data' is the preferred approach, in some case you may
     # need to place data files outside of your packages. See:
@@ -164,7 +162,7 @@ setup(
     # executes the function `main` from this package when invoked:
     entry_points={  # Optional
         "console_scripts": [
-            "jenk_fut_br=jenk_fut_br:command_line:main",
+            "jfuturbr=jfuturbr.command_line:main",
         ],
     },
     
