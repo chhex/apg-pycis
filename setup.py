@@ -164,6 +164,6 @@ setup(
         "console_scripts": [
             "jfuturbr=jfuturbr.command_line:main",
         ],
-    },
+    }
     
 )
