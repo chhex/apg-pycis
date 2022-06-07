@@ -1,4 +1,5 @@
 
+import argparse
 from prompt_toolkit import PromptSession, prompt
 from prompt_toolkit.validation import Validator, ValidationError
 from prompt_toolkit.shortcuts import confirm
@@ -18,6 +19,38 @@ class YesNoValidator(Validator):
             raise ValidationError(message='Please enter Y or n',cursor_position=1)
 
 def main():
+    dsc = """This script set's up a feature branch in jenkins, according to apg conventions,
+from a source branch / Version
+
+For the configuration , see the file jenkins_config.ini , for command line parameters , see --help
+
+Preconditions: 
+a The USER is a jenkins.apgsga.ch user
+b The jenkins user needs to be able to access jenkins cli password less via ssh , see https://jenkins.apgsga.ch/cli/
+c The jenkins userid is the same as the cvs.apgsga.ch user
+d The cvs user has passwordless access to cvs.apgsga.ch
+e The jenkins cli PORT must be deterined: 
+curl -Lv https://jenkins.apgsga.ch/login 2>&1 | grep 'X-SSH-Endpoint
+
+It has a interactive modus and a non interactive modus. 
+
+With the interfactive modus, the configuration is created interactively and the execution of the functions prompted
+
+"""
+
+    arg_parser = argparse.ArgumentParser(description=dsc,
+                                            formatter_class=argparse.RawDescriptionHelpFormatter)
+    arg_parser.add_argument('--not-interactive', '-ni', dest='is_not_interactive', default=False, action='store_true',
+                            help="Optional Argument, if true : non interactive mode")           
+    arg_parser.add_argument('--skip-co', dest='is_skip_co',  default=False, action='store_true',
+                            help="Optional Argument, if true, Cvs Checkout is skipped")
+    arg_parser.add_argument('--skip-pom-upd', dest='is_skip_pom_upd',  default=False, action='store_true',
+                            help="Optional Argument, if true, the pom.xml of the modules is not updated")
+    arg_parser.add_argument('--skip-commit', dest='is_skip_commit',  default=False, action='store_true',
+                            help="Optional Argument, if true, the pom.xml of the modules is not updated")
+    arg_parser.add_argument('--skip-create-jobs', dest='is_skip_create_jobs',  default=False, action='store_true',
+                            help="Optional Argument, if true, the jenkins jobs are not created")
+    args = arg_parser.parse_args()
     config = configparser.ConfigParser()
     here = pathlib.Path(__file__).parent.resolve()
     config_file_path, exists = jfuturbr.get_configuration()
@@ -27,45 +60,49 @@ def main():
         work_config_path =  os.path.join(here,"config_template.ini")
         print(f"Taking Configuration from template %s" % (work_config_path))
     config.read(work_config_path)
-    session = PromptSession()
-    configure(session,config)
-    with open(config_file_path, "w", encoding="utf-8") as config_file:
-        config.write(config_file)
-        print("Configuration changes written to: %s" % config_file_path)
-    answer = prompt("Do you want to confinue with processing (Y/n) : ", validator=YesNoValidator()) 
-    if answer == 'n':
-        print(f"Exiting programm with np further processing....bye, bye")
-        exit(0)
-    print(f"Continueing with processing ....")
-    print(f"Retrieving jobs names from source view"
-            f" %s with endswith filter: %s" %
-            (config['JENKINS']['source_view'],
-            config['JENKINS']['job_endswith_filter']))
+    interactive = not args.is_not_interactive;
+    if interactive:
+        session = PromptSession()
+        configure(session,config)
+        with open(config_file_path, "w", encoding="utf-8") as config_file:
+            config.write(config_file)
+            print("Configuration changes written to: %s" % config_file_path)
+        answer = prompt("Do you want to confinue with processing (Y/n) : ", validator=YesNoValidator()) 
+        if answer == 'n':
+            print(f"Exiting programm with no further processing....")
+            exit(0)
+        print(f"Continueing with processing ....")
+    print(f"Retrieving jobs names from source view %s with endswith filter: %s" % (config['JENKINS']['source_views'], config['JENKINS']['job_endswith_filter']))
     daos = jfuturbr.get_daos_from_view(config)
-    print(f"Retrieving jobs detail from selected jobs "
-            f"and updating to target branch: %s" %
-            config['CVS']['target_branch'])
+    print(f"Retrieving jobs detail from selected jobs and updating to target branch: %s" % config['CVS']['target_branch'])
     dao_details = jfuturbr.get_and_upd_job_details(daos, config)
-    answer = prompt("Confinue with cvs co of the selected modules (Y/n) : ", validator=YesNoValidator()) 
-    if answer == 'Y':
+    prompt_if_interactive_and_execute(interactive, args.is_skip_co, "cvs co of the selected modules" ,
+        jfuturbr.co_and_branching_modules, dao_details, config)
+    prompt_if_interactive_and_execute(interactive, args.is_skip_pom_upd,"the update of the pom.xml of the selected modules " , 
+        jfuturbr.update_module_poms, dao_details, config)
+    prompt_if_interactive_and_execute(interactive, args.is_skip_commit,f"commiting changes to cvs to branch: %s"  % config['CVS']['target_branch'] , 
+        jfuturbr.commit_modules, dao_details, config)
+    prompt_if_interactive_and_execute(interactive, args.is_skip_commit,"fcreate new Jenkins Jobs for Branch and Version: %s " % config['CVS']['target_branch'], 
+        jfuturbr.create_new_jobs, dao_details, config)
+    print(f"Finished.") 
+
+def prompt_if_interactive_and_execute(interactive, cmd_arg, msg_text, func, dao_details, config):
+    answer = "Y"
+    if cmd_arg:
+        answer =  "n"
+    if interactive:
+       answer =  prompt(f"Continue with %s ? ('Y' or 'n') :" % msg_text,validator=YesNoValidator())
+    if answer != 'Y':
+        return 
+    if func == jfuturbr.co_and_branching_modules:
         with_branching = prompt("After cvs co of the modules, create a branch for the modules (Y/n) : ", validator=YesNoValidator()) 
         print(f"Checking out from cvs and creating target Branch %s : %s" % (config['CVS']['target_branch'], with_branching))
         jfuturbr.co_and_branching_modules(dao_details, with_branching, config)
-    answer = prompt("Continue with the update of the pom.xml of the selected modules (Y/n) : ", validator=YesNoValidator()) 
-    if answer == 'Y':
-        print(f"Updating the pom.xml of selected modules with target Revision: %s" % config['MAVEN']['target_version'])
-        jfuturbr.update_module_poms(dao_details, config) 
-    answer = prompt(f"Do you want to continue commiting changes to cvs to branch: %s (Y/n) : "  % config['CVS']['target_branch'] , validator=YesNoValidator()) 
-    if answer == 'Y':
-        print(f"Commiting changes to cvs to branch: %s " % config['CVS']['target_branch'])
-        jfuturbr.commit_modules(dao_details , config)    
-    answer = prompt(f"Continue to create new Jenkins Job for Branch and Version: %s " % config['CVS']['target_branch'] , validator=YesNoValidator()) 
-    if answer == 'Y':
-        print(f"Creating new Jenkins for Branch and Version: %s "
-            % config['CVS']['target_branch'])
-        jfuturbr.create_new_jobs(dao_details, config)
-    print(f"Finished.") 
-    
+        return
+    print(f"Confinueing with %s" % msg_text)
+    func(dao_details, config)
+        
+
 def configure(session,config):
     update_config(session,config)
     if confirm_config(session,config):

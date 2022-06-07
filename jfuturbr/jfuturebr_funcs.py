@@ -27,7 +27,7 @@ def check_and_create_workdir(child, config):
 def get_daos_from_view(config):
     jobs_names = subprocess.check_output(
         ['ssh', '-l', config["ENV"]["user"], '-p', config["JENKINS"]["port"], config['JENKINS']['target_uri'],
-         'list-jobs', f"%s" % config['JENKINS']['source_view']], text=True)
+         'list-jobs', f"%s" % config['JENKINS']['source_views']], text=True)
     exludes = config['JENKINS']['jobs_exludes'].split()
     daos = []
     for job in jobs_names.splitlines():
@@ -114,7 +114,7 @@ def co_and_branching_modules(dao_details, with_branching, config):
 
 def update_module_poms(dao_details, config):
     curr_dir = os.getcwd()
-    dir_ = config["CVS"]["local_work_dir"]
+    dir_ = config["ENV"]["local_work_dir"]
     cvs_path = os.path.join(dir_, "cvs")
     for module in dao_details:
         module_path = os.path.join(cvs_path, module.module_name)
