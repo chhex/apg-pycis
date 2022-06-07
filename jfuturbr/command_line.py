@@ -1,6 +1,5 @@
 
 import argparse
-from curses.ascii import NUL
 from prompt_toolkit import PromptSession, prompt
 from prompt_toolkit.validation import Validator, ValidationError
 from prompt_toolkit.shortcuts import confirm
@@ -81,20 +80,19 @@ With the interfactive modus, the configuration is created interactively and the 
     dao_details = jfuturbr.get_and_upd_job_details(daos, config)
     prompt_if_interactive_and_execute(interactive, args.is_skip_co, args,"cvs co of the selected modules" ,
         jfuturbr.co_and_branching_modules, dao_details, config)
-    prompt_if_interactive_and_execute(interactive, args.is_skip_pom_upd, NUL,"the update of the pom.xml of the selected modules " , 
+    prompt_if_interactive_and_execute(interactive, args.is_skip_pom_upd, None,"the update of the pom.xml of the selected modules " , 
         jfuturbr.update_module_poms, dao_details, config)
-    prompt_if_interactive_and_execute(interactive, args.is_skip_commit,NUL,f"commiting changes to cvs to branch: %s"  % config['CVS']['target_branch'] , 
+    prompt_if_interactive_and_execute(interactive, args.is_skip_commit,None,f"commiting changes to cvs to branch: %s"  % config['CVS']['target_branch'] , 
         jfuturbr.commit_modules, dao_details, config)
-    prompt_if_interactive_and_execute(interactive, args.is_skip_create_jobs,NUL,f"create new Jenkins Jobs for Branch and Version: %s " % config['CVS']['target_branch'], 
+    prompt_if_interactive_and_execute(interactive, args.is_skip_create_jobs,None,f"create new Jenkins Jobs for Branch and Version: %s " % config['CVS']['target_branch'], 
         jfuturbr.create_new_jobs, dao_details, config)
     print(f"Finished.") 
 
 def prompt_if_interactive_and_execute(interactive, cmd_arg,args, msg_text, func, dao_details, config):
     is_to_do  = prompt_if_interactive(interactive,cmd_arg,msg_text)
-    arg = NUL
+    arg = None
     if func == jfuturbr.co_and_branching_modules:
         arg = prompt_if_interactive(interactive, args.is_skip_br,f"After cvs co of the modules, create the branch %s " % config['CVS']['target_branch'])
- 
     execute(is_to_do,msg_text,func,arg,dao_details,config)
 
 def prompt_if_interactive(interactive, cmd_arg, msg_text):
@@ -112,7 +110,7 @@ def execute(is_to_do, msg_text, func, arg,dao_details, config):
     print(f"%s %s" % (what, msg_text))
     if not is_to_do:
         return
-    func(dao_details, config) if arg == NUL else func(dao_details, arg,config)
+    func(dao_details, config) if arg == None else func(dao_details, arg,config)
     print(f"Done with %s." % msg_text)
 
 def configure(session,config):
