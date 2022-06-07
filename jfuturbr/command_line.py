@@ -1,10 +1,18 @@
 from prompt_toolkit import PromptSession
+from prompt_toolkit.validation import Validator, ValidationError
 from prompt_toolkit.shortcuts import confirm
 import os
 import getpass
 import configparser
 import pathlib
 import jfuturbr
+
+def YesNoValidator(Validator): 
+    def validate(self, document):
+        text = document.text
+
+        if text.lower() != 'y' and text.lower() != 'n':
+            raise ValidationError(message='Please enter y or n')
 
 def main():
     config = configparser.ConfigParser()
@@ -40,6 +48,7 @@ def confirm_config(session,config):
     for each_section in config.sections():
         for (each_key, each_val) in config.items(each_section):
             print(f"[%s][%s]=%s" % (each_section,each_key,each_val)) 
-    return confirm("Is the config ok?")
-
-
+    answer = session.prompt("Is the config ok, y or n?", validator=YesNoValidator())
+    if answer.lower() != 'y': 
+        return True
+    return False
