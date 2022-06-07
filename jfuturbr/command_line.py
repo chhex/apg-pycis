@@ -80,7 +80,7 @@ With the interfactive modus, the configuration is created interactively and the 
     print(f"Retrieving jobs detail from selected jobs and updating to target branch: %s" % config['CVS']['target_branch'])
     dao_details = jfuturbr.get_and_upd_job_details(daos, config)
     prompt_if_interactive_and_execute(interactive, args.is_skip_co, args,"cvs co of the selected modules" ,
-        "co_and_branching_modules_first_prompt", dao_details, config)
+        jfuturbr.co_and_branching_modules, dao_details, config)
     prompt_if_interactive_and_execute(interactive, args.is_skip_pom_upd, NUL,"the update of the pom.xml of the selected modules " , 
         jfuturbr.update_module_poms, dao_details, config)
     prompt_if_interactive_and_execute(interactive, args.is_skip_commit,NUL,f"commiting changes to cvs to branch: %s"  % config['CVS']['target_branch'] , 
@@ -90,20 +90,29 @@ With the interfactive modus, the configuration is created interactively and the 
     print(f"Finished.") 
 
 def prompt_if_interactive_and_execute(interactive, cmd_arg,args, msg_text, func, dao_details, config):
+    is_to_do  = prompt_if_interactive(interactive,cmd_arg,msg_text)
+    arg = NUL
+    if func == jfuturbr.co_and_branching_modules:
+        arg = prompt_if_interactive(interactive, args.is_skip_br,f"After cvs co of the modules, create the branch %s " % config['CVS']['target_branch'])
+ 
+    execute(is_to_do,msg_text,func,arg,dao_details,config)
+
+def prompt_if_interactive(interactive, cmd_arg, msg_text):
     answer = "Y"
     if cmd_arg:
         answer =  "n"
     if interactive:
        answer =  prompt(f"Continue with %s ? ('Y' or 'n') :" % msg_text,validator=YesNoValidator())
     if answer != 'Y':
-        return 
-    if func == "co_and_branching_modules_first_prompt":
-        prompt_if_interactive_and_execute(interactive, args.is_skip_br, 
-        f"After cvs co of the modules, create the branch %s " % config['CVS']['target_branch'],NUL,
-         jfuturbr.co_and_branching_modules, dao_details, config)
+        return False
+    return True
+
+def execute(is_to_do, msg_text, func, arg,dao_details, config):
+    what = "Confinuing with" if is_to_do else "Skipping "
+    print(f"%s %s" % what, msg_text)
+    if not is_to_do:
         return
-    print(f"Confinuing with %s" % msg_text)
-    func(dao_details, config)
+    func(dao_details, config) if arg == NUL else func(dao_details, arg,config)
     print(f"Done with %s." % msg_text)
 
 def configure(session,config):
