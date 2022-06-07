@@ -1,4 +1,5 @@
-from prompt_toolkit import PromptSession
+
+from prompt_toolkit import PromptSession, prompt
 from prompt_toolkit.validation import Validator, ValidationError
 from prompt_toolkit.shortcuts import confirm
 import os
@@ -11,8 +12,8 @@ class YesNoValidator(Validator):
     def validate(self, document):
         text = document.text
 
-        if text.lower() != 'y' and text.lower() != 'n':
-            raise ValidationError(message='Please enter y or n',cursor_position=1)
+        if text != "Y" and text != 'n':
+            raise ValidationError(message='Please enter Y or n',cursor_position=1)
 
 def main():
     config = configparser.ConfigParser()
@@ -44,11 +45,13 @@ def update_config(session,config):
 
 
 def confirm_config(session,config):
-    print(f"Displaying configuration, which will be used")
+    print("Configuration terminated.")
+    print(f"Redisplaying configuration, which will be used:")
     for each_section in config.sections():
         for (each_key, each_val) in config.items(each_section):
             print(f"[%s][%s]=%s" % (each_section,each_key,each_val)) 
-    answer = session.prompt("Is the config ok, y or n?", validator=YesNoValidator())
-    if answer.lower() != 'y': 
-        return True
-    return False
+    answer = prompt("Is the config ok? (Y/n) : ", validator=YesNoValidator()) 
+    if answer == 'n':
+        print(f"Reconfiguring....")
+        return False
+    return True
