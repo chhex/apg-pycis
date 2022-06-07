@@ -6,6 +6,8 @@ import os
 import getpass
 import configparser
 import pathlib
+
+from regex import W
 import jfuturbr
 
 class YesNoValidator(Validator): 
@@ -18,9 +20,30 @@ class YesNoValidator(Validator):
 def main():
     config = configparser.ConfigParser()
     here = pathlib.Path(__file__).parent.resolve()
-    config.read(here / "config_template.ini")
+    config_file_path, exists = jfuturbr.get_configuration()
+    work_config_path = config_file_path
+    print(f"Configuration path %s, exists : %s" % (work_config_path,exists))
+    if not exists:
+        work_config_path =  os.path.join(here,"config_template.ini")
+        print(f"Taking Configuration from template %s" % (work_config_path))
+    config.read(work_config_path)
     session = PromptSession()
     configure(session,config)
+    with open(config_file_path, "w", encoding="utf-8") as config_file:
+        config.write(config_file)
+        print("Configuration changes written to: %s" % config_file_path)
+    answer = prompt("Do you want to confinue with processing (Y/n) : ", validator=YesNoValidator()) 
+    if answer == 'n':
+        print(f"Exiting programm with np further processing....bye, bye")
+        exit(0)
+    print(f"Continueing with processing ....")
+    anwser = prompt("Do you want processing dry run modus (Y/n) : ", validator=YesNoValidator()) 
+    dry_run = False
+    if answer == 'Y':
+        print(f"Running in Dry Run modus")
+        dry_run = True
+    print(f"Processing TODO")
+    print(f"Finished.") 
     
 def configure(session,config):
     update_config(session,config)

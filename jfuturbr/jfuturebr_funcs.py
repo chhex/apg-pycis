@@ -196,3 +196,15 @@ def get_jenkins_port(config):
     if pos >= 0:
         return answer[pos+1:].strip()
     return 99999
+
+def get_configuration():  
+    config_dir_path = os.path.expanduser("~/.apg_pycis")
+    exists = os.path.exists(config_dir_path)
+    if exists and not os.path.isdir(config_dir_path): 
+        raise NotADirectoryError(config_dir_path)
+    os.makedirs(config_dir_path, exist_ok=True) 
+    config_file_path = os.path.join(config_dir_path, "config.ini")
+    exists = os.path.exists(config_file_path)
+    if (os.stat(config_file_path).st_size == 0):
+        exists = False
+    return config_file_path, exists
