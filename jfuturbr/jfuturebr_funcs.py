@@ -90,7 +90,7 @@ def co_and_branching_modules(dao_details, with_branching, config):
         if output.stderr:
             print(output.stderr)
         if with_branching:
-            print("Not Branching module %s, because running in dry run mode" % module)
+            print("Not Branching module %s since skipping commit requested" % module)
             continue
         module_path = os.path.join(target_dir, module.module_name)
         print(f"***** Changing to directory: %s for tagging  " % module_path)

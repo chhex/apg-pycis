@@ -1,5 +1,6 @@
 
 import argparse
+from curses.ascii import NUL
 from prompt_toolkit import PromptSession, prompt
 from prompt_toolkit.validation import Validator, ValidationError
 from prompt_toolkit.shortcuts import confirm
@@ -44,6 +45,8 @@ With the interfactive modus, the configuration is created interactively and the 
                             help="Optional Argument, if true : non interactive mode")           
     arg_parser.add_argument('--skip-co', dest='is_skip_co',  default=False, action='store_true',
                             help="Optional Argument, if true, Cvs Checkout is skipped")
+    arg_parser.add_argument('--skip-br', dest='is_skip_br',  default=False, action='store_true',
+                            help="Optional Argument, if true, Cvs Branching is skipped")
     arg_parser.add_argument('--skip-pom-upd', dest='is_skip_pom_upd',  default=False, action='store_true',
                             help="Optional Argument, if true, the pom.xml of the modules is not updated")
     arg_parser.add_argument('--skip-commit', dest='is_skip_commit',  default=False, action='store_true',
@@ -55,7 +58,7 @@ With the interfactive modus, the configuration is created interactively and the 
     here = pathlib.Path(__file__).parent.resolve()
     config_file_path, exists = jfuturbr.get_configuration()
     work_config_path = config_file_path
-    print(f"Configuration path %s, exists : %s" % (work_config_path,exists))
+    print(f"Configuration %s, exists : %s" % (work_config_path,exists))
     if not exists:
         work_config_path =  os.path.join(here,"config_template.ini")
         print(f"Taking Configuration from template %s" % (work_config_path))
@@ -76,17 +79,17 @@ With the interfactive modus, the configuration is created interactively and the 
     daos = jfuturbr.get_daos_from_view(config)
     print(f"Retrieving jobs detail from selected jobs and updating to target branch: %s" % config['CVS']['target_branch'])
     dao_details = jfuturbr.get_and_upd_job_details(daos, config)
-    prompt_if_interactive_and_execute(interactive, args.is_skip_co, "cvs co of the selected modules" ,
-        jfuturbr.co_and_branching_modules, dao_details, config)
-    prompt_if_interactive_and_execute(interactive, args.is_skip_pom_upd,"the update of the pom.xml of the selected modules " , 
+    prompt_if_interactive_and_execute(interactive, args.is_skip_co, args,"cvs co of the selected modules" ,
+        "co_and_branching_modules_first_prompt", dao_details, config)
+    prompt_if_interactive_and_execute(interactive, args.is_skip_pom_upd, NUL,"the update of the pom.xml of the selected modules " , 
         jfuturbr.update_module_poms, dao_details, config)
-    prompt_if_interactive_and_execute(interactive, args.is_skip_commit,f"commiting changes to cvs to branch: %s"  % config['CVS']['target_branch'] , 
+    prompt_if_interactive_and_execute(interactive, args.is_skip_commit,NUL,f"commiting changes to cvs to branch: %s"  % config['CVS']['target_branch'] , 
         jfuturbr.commit_modules, dao_details, config)
-    prompt_if_interactive_and_execute(interactive, args.is_skip_commit,"fcreate new Jenkins Jobs for Branch and Version: %s " % config['CVS']['target_branch'], 
+    prompt_if_interactive_and_execute(interactive, args.is_skip_create_jobs,NUL,f"create new Jenkins Jobs for Branch and Version: %s " % config['CVS']['target_branch'], 
         jfuturbr.create_new_jobs, dao_details, config)
     print(f"Finished.") 
 
-def prompt_if_interactive_and_execute(interactive, cmd_arg, msg_text, func, dao_details, config):
+def prompt_if_interactive_and_execute(interactive, cmd_arg,args, msg_text, func, dao_details, config):
     answer = "Y"
     if cmd_arg:
         answer =  "n"
@@ -94,14 +97,14 @@ def prompt_if_interactive_and_execute(interactive, cmd_arg, msg_text, func, dao_
        answer =  prompt(f"Continue with %s ? ('Y' or 'n') :" % msg_text,validator=YesNoValidator())
     if answer != 'Y':
         return 
-    if func == jfuturbr.co_and_branching_modules:
-        with_branching = prompt("After cvs co of the modules, create a branch for the modules (Y/n) : ", validator=YesNoValidator()) 
-        print(f"Checking out from cvs and creating target Branch %s : %s" % (config['CVS']['target_branch'], with_branching))
-        jfuturbr.co_and_branching_modules(dao_details, with_branching, config)
+    if func == "co_and_branching_modules_first_prompt":
+        prompt_if_interactive_and_execute(interactive, args.is_skip_br, 
+        f"After cvs co of the modules, create the branch %s " % config['CVS']['target_branch'],NUL,
+         jfuturbr.co_and_branching_modules, dao_details, config)
         return
-    print(f"Confinueing with %s" % msg_text)
+    print(f"Confinuing with %s" % msg_text)
     func(dao_details, config)
-        
+    print(f"Done with %s." % msg_text)
 
 def configure(session,config):
     update_config(session,config)
