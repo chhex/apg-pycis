@@ -70,7 +70,7 @@ def get_and_upd_job_details(daos, config):
     return dao_details
 
 
-def co_and_branching_modules(dao_details, with_branching, config):
+def co_and_branching_modules(dao_details, skip_br, config):
     target_dir = check_and_create_workdir("cvs", config)
     print(f"Using work dir %s" % target_dir)
     curr_dir = os.getcwd()
@@ -89,7 +89,7 @@ def co_and_branching_modules(dao_details, with_branching, config):
         print(output.stdout)
         if output.stderr:
             print(output.stderr)
-        if with_branching:
+        if skip_br:
             print("Not Branching module %s since skipping commit requested" % module)
             continue
         module_path = os.path.join(target_dir, module.module_name)

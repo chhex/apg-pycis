@@ -110,7 +110,7 @@ def execute(is_to_do, msg_text, func, arg,dao_details, config):
     print(f"%s %s" % (what, msg_text))
     if not is_to_do:
         return
-    func(dao_details, config) if arg == None else func(dao_details, arg,config)
+    func(dao_details, config) if arg == None else func(dao_details, True,config)
     print(f"Done with %s." % msg_text)
 
 def configure(session,config):
