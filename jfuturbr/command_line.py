@@ -109,7 +109,7 @@ def prompt_if_interactive(interactive, cmd_arg, msg_text):
 
 def execute(is_to_do, msg_text, func, arg,dao_details, config):
     what = "Confinuing with" if is_to_do else "Skipping "
-    print(f"%s %s" % what, msg_text)
+    print(f"%s %s" % (what, msg_text))
     if not is_to_do:
         return
     func(dao_details, config) if arg == NUL else func(dao_details, arg,config)
