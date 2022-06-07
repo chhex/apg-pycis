@@ -12,7 +12,7 @@ class YesNoValidator(Validator):
         text = document.text
 
         if text.lower() != 'y' and text.lower() != 'n':
-            raise ValidationError(message='Please enter y or n')
+            raise ValidationError(message='Please enter y or n',cursor_position=1)
 
 def main():
     config = configparser.ConfigParser()
