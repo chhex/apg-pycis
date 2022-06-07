@@ -52,4 +52,5 @@ TODO Describe development process
 
 - Support SOURCE and TARGET jenkins URI and PORT in configuration, for example copy from one jenkins instance to another 
 - Support Multiple Views as Source
+- For interactive modus add colors, to support a better visibilty and seperation of concerns
 
