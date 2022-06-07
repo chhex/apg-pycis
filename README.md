@@ -44,8 +44,12 @@ Example for non interactive modus:
 
 `jfuturbr -ni --skip-commit --skip-create-jobs --skip-br`
 
+## Development
+
+TODO Describe development process
+
 ## Open Issues
 
 - Support SOURCE and TARGET jenkins URI and PORT in configuration, for example copy from one jenkins instance to another 
-- Support Multiple Views as Source 
+- Support Multiple Views as Source
 
