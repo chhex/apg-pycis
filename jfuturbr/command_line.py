@@ -22,19 +22,19 @@ def main():
     dsc = """This script set's up a feature branch in jenkins, according to apg conventions,
 from a source branch / Version
 
-For the configuration , see the file jenkins_config.ini , for command line parameters , see --help
+For the configuration , see the file ~/.apg_pycis/config.ini , for command line parameters , see --help
 
 Preconditions: 
 a The USER is a jenkins.apgsga.ch user
 b The jenkins user needs to be able to access jenkins cli password less via ssh , see https://jenkins.apgsga.ch/cli/
 c The jenkins userid is the same as the cvs.apgsga.ch user
 d The cvs user has passwordless access to cvs.apgsga.ch
-e The jenkins cli PORT must be deterined: 
-curl -Lv https://jenkins.apgsga.ch/login 2>&1 | grep 'X-SSH-Endpoint
 
-It has a interactive modus and a non interactive modus. 
+It has a interactive modus and a non interactive modus, see command line option --not-interactive'
 
-With the interfactive modus, the configuration is created interactively and the execution of the functions prompted
+With the interfactive modus, the configuration is created interactively and the execution of the corresponding functions is prompted
+
+TODO Overview of functionality
 
 """
 
