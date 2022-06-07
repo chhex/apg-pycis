@@ -7,7 +7,7 @@ import configparser
 import pathlib
 import jfuturbr
 
-def YesNoValidator(Validator): 
+class YesNoValidator(Validator): 
     def validate(self, document):
         text = document.text
 
