@@ -37,12 +37,33 @@ def main():
         print(f"Exiting programm with np further processing....bye, bye")
         exit(0)
     print(f"Continueing with processing ....")
-    anwser = prompt("Do you want processing dry run modus (Y/n) : ", validator=YesNoValidator()) 
-    dry_run = False
+    print(f"Retrieving jobs names from source view"
+            f" %s with endswith filter: %s" %
+            (config['JENKINS']['source_view'],
+            config['JENKINS']['job_endswith_filter']))
+    daos = jfuturbr.get_daos_from_view(config)
+    print(f"Retrieving jobs detail from selected jobs "
+            f"and updating to target branch: %s" %
+            config['CVS']['target_branch'])
+    dao_details = jfuturbr.get_and_upd_job_details(daos, config)
+    answer = prompt("Confinue with cvs co of the selected modules (Y/n) : ", validator=YesNoValidator()) 
     if answer == 'Y':
-        print(f"Running in Dry Run modus")
-        dry_run = True
-    print(f"Processing TODO")
+        with_branching = prompt("After cvs co of the modules, create a branch for the modules (Y/n) : ", validator=YesNoValidator()) 
+        print(f"Checking out from cvs and creating target Branch %s : %s" % (config['CVS']['target_branch'], with_branching))
+        jfuturbr.co_and_branching_modules(dao_details, with_branching, config)
+    answer = prompt("Continue with the update of the pom.xml of the selected modules (Y/n) : ", validator=YesNoValidator()) 
+    if answer == 'Y':
+        print(f"Updating the pom.xml of selected modules with target Revision: %s" % config['MAVEN']['target_version'])
+        jfuturbr.update_module_poms(dao_details, config) 
+    answer = prompt(f"Do you want to continue commiting changes to cvs to branch: %s (Y/n) : "  % config['CVS']['target_branch'] , validator=YesNoValidator()) 
+    if answer == 'Y':
+        print(f"Commiting changes to cvs to branch: %s " % config['CVS']['target_branch'])
+        jfuturbr.commit_modules(dao_details , config)    
+    answer = prompt(f"Continue to create new Jenkins Job for Branch and Version: %s " % config['CVS']['target_branch'] , validator=YesNoValidator()) 
+    if answer == 'Y':
+        print(f"Creating new Jenkins for Branch and Version: %s "
+            % config['CVS']['target_branch'])
+        jfuturbr.create_new_jobs(dao_details, config)
     print(f"Finished.") 
     
 def configure(session,config):

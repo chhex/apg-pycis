@@ -15,7 +15,7 @@ class JobDetail:
 
 
 def check_and_create_workdir(child, config):
-    dir_ = config["CVS"]["local_work_dir"]
+    dir_ = config["ENV"]["local_work_dir"]
     target_dir = os.path.join(dir_, child)
     print(target_dir)
     if os.path.isdir(target_dir):
@@ -24,9 +24,9 @@ def check_and_create_workdir(child, config):
     return target_dir
 
 
-def get_daos_from_view(args, config):
+def get_daos_from_view(config):
     jobs_names = subprocess.check_output(
-        ['ssh', '-l', args.user, '-p', args.port, config['JENKINS']['target_uri'],
+        ['ssh', '-l', config["ENV"]["user"], '-p', config["JENKINS"]["port"], config['JENKINS']['target_uri'],
          'list-jobs', f"%s" % config['JENKINS']['source_view']], text=True)
     exludes = config['JENKINS']['jobs_exludes'].split()
     daos = []
@@ -44,13 +44,13 @@ def get_daos_from_view(args, config):
     return daos
 
 
-def get_and_upd_job_details(daos, args, config):
+def get_and_upd_job_details(daos, config):
     target_dir = check_and_create_workdir("jenkins", config)
     dao_details = []
     for dao in daos:
         print(f"Gathering details of job %s" % dao)
         detail = subprocess.check_output(
-            ['ssh', '-l', args.user, '-p', args.port, config['JENKINS']['target_uri'],
+            ['ssh', '-l', config["ENV"]["user"], '-p', config["JENKINS"]["port"], config['JENKINS']['target_uri'],
              'get-job', f"'%s'" % dao.replace(' ', '\\ ')], text=True)
         xml = BeautifulSoup(detail, 'xml')
         hudson_cvs_repo = xml.scm.repositories.find('hudson.scm.CvsRepository')
@@ -70,10 +70,7 @@ def get_and_upd_job_details(daos, args, config):
     return dao_details
 
 
-def co_and_branching_modules(dao_details, args, config):
-    if args.is_skip_co:
-        print("Skipping cvs checkout")
-        return
+def co_and_branching_modules(dao_details, with_branching, config):
     target_dir = check_and_create_workdir("cvs", config)
     print(f"Using work dir %s" % target_dir)
     curr_dir = os.getcwd()
@@ -81,7 +78,7 @@ def co_and_branching_modules(dao_details, args, config):
     os.chdir(target_dir)
     print(f"Changed to dir %s" % os.getcwd())
     cvs_env = os.environ.copy()
-    cvs_env["CVSROOT"] = f":ext:%s@%s:/var/local/cvs/root" % (args.user, config["CVS"]["repository"])
+    cvs_env["CVSROOT"] = f":ext:%s@%s:/var/local/cvs/root" % (config["ENV"]["user"], config["CVS"]["repository"])
     cvs_env["CVS_RSH"] = "ssh"
     for module in dao_details:
         print(f"!!!!! processing module: %s " % module.module_name)
@@ -92,8 +89,8 @@ def co_and_branching_modules(dao_details, args, config):
         print(output.stdout)
         if output.stderr:
             print(output.stderr)
-        if args.is_dry_run:
-            print("Not Branching module %s, , because running in dry run mode" % module)
+        if with_branching:
+            print("Not Branching module %s, because running in dry run mode" % module)
             continue
         module_path = os.path.join(target_dir, module.module_name)
         print(f"***** Changing to directory: %s for tagging  " % module_path)
@@ -115,10 +112,7 @@ def co_and_branching_modules(dao_details, args, config):
     os.chdir(curr_dir)
 
 
-def update_module_poms(dao_details, args, config):
-    if args.is_skip_pom_upd:
-        print("Skippingpom.xml update of modules")
-        return
+def update_module_poms(dao_details, config):
     curr_dir = os.getcwd()
     dir_ = config["CVS"]["local_work_dir"]
     cvs_path = os.path.join(dir_, "cvs")
@@ -142,15 +136,12 @@ def update_module_poms(dao_details, args, config):
     os.chdir(curr_dir)
 
 
-def commit_modules(dao_details, args, config):
-    if args.is_dry_run or args.is_skip_commit:
-        print("Skipping commit pf module changes, because running in dry run mode")
-        return
+def commit_modules(dao_details, config):
     curr_dir = os.getcwd()
     dir_ = config["CVS"]["local_work_dir"]
     cvs_path = os.path.join(dir_, "cvs")
     cvs_env = os.environ.copy()
-    cvs_env["CVSROOT"] = f":ext:%s@%s:/var/local/cvs/root" % (args.user, config["CVS"]["repository"])
+    cvs_env["CVSROOT"] = f":ext:%s@%s:/var/local/cvs/root" % (config["ENV"]["user"], config["CVS"]["repository"])
     cvs_env["CVS_RSH"] = "ssh"
     for module in dao_details:
         module_path = os.path.join(cvs_path, module.module_name)
@@ -160,29 +151,26 @@ def commit_modules(dao_details, args, config):
     os.chdir(curr_dir)
 
 
-def create_new_jobs(dao_details, args, config):
-    if args.is_dry_run:
-        print("Not creating new Jenkins Jobs, because running in dry run mode")
-        return
+def create_new_jobs(dao_details, config):
     for job in dao_details:
         job_name = re.sub(r"\s+", "", job.job_name)
         job_name = job_name.replace(config['JENKINS']['source_job_name_prefix'],
                                     config['JENKINS']['target_job_name_prefix'])
         print(f"Deleting Jenkins Job %s" % job_name)
-        subprocess.call(['ssh', '-l', args.user,
-                         '-p',args.port,
+        subprocess.call(['ssh', '-l', config["ENV"]["user"],
+                         '-p', config["JENKINS"]["port"],
                          config['JENKINS']['target_uri'],
                          'delete-job', job_name], stdout=True, stderr=True)
         print(f"Creating Jenkins Job %s" % job_name)
         cat = subprocess.Popen(['cat', job.local_file_name], stdout=subprocess.PIPE)
-        subprocess.check_output(['ssh', '-l', args.user,
-                                 '-p', args.port,
+        subprocess.check_output(['ssh', '-l', config["ENV"]["user"],
+                                '-p', config["JENKINS"]["port"],
                                  config['JENKINS']['target_uri'],
                                  'create-job', job_name], stdin=cat.stdout)
         cat.wait()
         print(f"Adding Jenkins Job %s to view %s" % (job_name, config['JENKINS']['target_view']))
-        subprocess.call(['ssh', '-l', args.user,
-                         '-p', args.port,
+        subprocess.call(['ssh', '-l', config["ENV"]["user"],
+                         '-p', config["JENKINS"]["port"],
                          config['JENKINS']['target_uri'],
                          'add-job-to-view', config['JENKINS']['target_view'], job_name], stdout=True, stderr=True)
 
