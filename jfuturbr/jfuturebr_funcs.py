@@ -138,7 +138,7 @@ def update_module_poms(dao_details, config):
 
 def commit_modules(dao_details, config):
     curr_dir = os.getcwd()
-    dir_ = config["CVS"]["local_work_dir"]
+    dir_ = config["ENV"]["local_work_dir"]
     cvs_path = os.path.join(dir_, "cvs")
     cvs_env = os.environ.copy()
     cvs_env["CVSROOT"] = f":ext:%s@%s:/var/local/cvs/root" % (config["ENV"]["user"], config["CVS"]["repository"])
