@@ -92,10 +92,12 @@ def prompt_if_interactive_and_execute(interactive, cmd_arg,args, msg_text, func,
     is_to_do  = prompt_if_interactive(interactive,cmd_arg,msg_text)
     arg = None
     if func == jfuturbr.co_and_branching_modules:
-        arg = prompt_if_interactive(interactive, args.is_skip_br,f"After cvs co of the modules, create the branch %s " % config['CVS']['target_branch'])
+        answer = prompt_if_interactive(interactive, args.is_skip_br,f"After cvs co of the modules, create the branch %s " % config['CVS']['target_branch'])
+        arg = not answer
     execute(is_to_do,msg_text,func,arg,dao_details,config)
 
 def prompt_if_interactive(interactive, cmd_arg, msg_text):
+    print(f"Prompt if interactive: %s, cmd_arg: %s, msg_text: %s" % (interactive,cmd_arg,msg_text))
     answer = "Y"
     if cmd_arg:
         answer =  "n"
@@ -106,11 +108,12 @@ def prompt_if_interactive(interactive, cmd_arg, msg_text):
     return True
 
 def execute(is_to_do, msg_text, func, arg,dao_details, config):
+    print(f"Execute : %s, is_to_do: %s, arg: %s, msg_text: %s" % (func,is_to_do,arg,msg_text))
     what = "Confinuing with" if is_to_do else "Skipping "
     print(f"%s %s" % (what, msg_text))
     if not is_to_do:
         return
-    func(dao_details, config) if arg == None else func(dao_details, True,config)
+    func(dao_details, config) if arg == None else func(dao_details, arg,config)
     print(f"Done with %s." % msg_text)
 
 def configure(session,config):
