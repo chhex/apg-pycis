@@ -154,7 +154,7 @@ def commit_modules(dao_details, config):
 def create_new_jobs(dao_details, config):
     for job in dao_details:
         job_name = re.sub(r"\s+", "", job.job_name)
-        job_name = job_name.replace(config['JENKINS']['source_job_name_prefix'],
+        job_name = job_name.replace(config['JENKINS']['source_job_name_prefixes'],
                                     config['JENKINS']['target_job_name_prefix'])
         print(f"Deleting Jenkins Job %s" % job_name)
         subprocess.call(['ssh', '-l', config["ENV"]["user"],
