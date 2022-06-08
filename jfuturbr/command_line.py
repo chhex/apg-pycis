@@ -92,8 +92,8 @@ def prompt_if_interactive_and_execute(interactive, cmd_arg,args, msg_text, func,
     is_to_do  = prompt_if_interactive(interactive,cmd_arg,msg_text)
     arg = None
     if func == jfuturbr.co_and_branching_modules:
-        answer = prompt_if_interactive(interactive, args.is_skip_br,f"After cvs co of the modules, create the branch %s " % config['CVS']['target_branch'])
-        arg = not answer
+        answer = prompt_if_interactive(interactive, not args.is_skip_br,f"After cvs co of the modules, create the branch %s " % config['CVS']['target_branch'])
+        arg = not answer if interactive else answer
     execute(is_to_do,msg_text,func,arg,dao_details,config)
 
 def prompt_if_interactive(interactive, cmd_arg, msg_text):
@@ -102,7 +102,7 @@ def prompt_if_interactive(interactive, cmd_arg, msg_text):
     if cmd_arg:
         answer =  "n"
     if interactive:
-       answer =  prompt(f"Continue with %s ? ('Y' or 'n') :" % msg_text,validator=YesNoValidator())
+       answer =  prompt(f"Continue with %s ? ('Y' or 'n') :" % msg_text,validator=YesNoValidator())    
     if answer != 'Y':
         return False
     return True
