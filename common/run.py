@@ -2,8 +2,10 @@ import os
 import subprocess
 
 
-def run_subprocess(cmd, env =  os.environ.copy()):
+def run_subprocess(cmd, env =  os.environ.copy(), verbose = False):
     output = subprocess.run(cmd, capture_output=True, text=True, env=env)
+    if verbose:
+        print(output.stdout)
     if output.stderr:
         print(output.stderr)
     if output.returncode != 0:
