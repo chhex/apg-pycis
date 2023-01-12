@@ -70,7 +70,7 @@ setup(
     author="C. Henrici",  # Optional
     # This should be a valid email address corresponding to the author listed
     # above.
-    author_email="christoph.henrici@apgsga.ch",  # Optional
+    author_email="chhenrici@gmail.com",  # Optional
     # Classifiers help users find your project by categorizing it.
     #
     # For a list of valid classifiers, see https://pypi.org/classifiers/
@@ -101,7 +101,7 @@ setup(
     # Note that this is a list of additional keywords, separated
     # by commas, to be used to assist searching for the distribution in a
     # larger catalog.
-    keywords="apg, ci, development",  # Optional
+    keywords="ci, development",  # Optional
     # You can just specify package directories manually here if your project is
     # simple. Or you can use find_packages().
     #
@@ -111,7 +111,7 @@ setup(
     #
     #   py_modules=["my_module"],
     #
-    packages=["jfuturbr"],  # Required
+    packages=["scripts/jviewscan", "common"],  # Required
     # Specify which Python versions you support. In contrast to the
     # 'Programming Language' classifiers above, 'pip install' will check this
     # and refuse to install the project if the version does not match. See
@@ -125,10 +125,7 @@ setup(
     # https://packaging.python.org/discussions/install-requires-vs-requirements/
     install_requires=[
         'beautifulsoup4==4.11.1',
-        'bs4==0.0.1',
-        'lxml==4.8.0',
-        'soupsieve==2.3.2.post1',
-        'prompt-toolkit==3.0.29'
+        'python-jenkins==1.7.0'
         ],  # Optional
     # List additional groups of dependencies here (e.g. development
     # dependencies). Users will be able to install these using the "extras"
@@ -145,7 +142,6 @@ setup(
     # If there are data files included in your packages that need to be
     # installed, specify them here.
     package_data={  # Optional
-        "jfuturbr": ["config_template.ini"],
     },
     # Although 'package_data' is the preferred approach, in some case you may
     # need to place data files outside of your packages. See:
@@ -162,7 +158,7 @@ setup(
     # executes the function `main` from this package when invoked:
     entry_points={  # Optional
         "console_scripts": [
-            "jfuturbr=jfuturbr.command_line:main",
+            "jviewscan=scripts.jviewscan.command_line:main",
         ],
     }
     
