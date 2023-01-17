@@ -111,7 +111,7 @@ setup(
     #
     #   py_modules=["my_module"],
     #
-    packages=["scripts/jviewscan", "common"],  # Required
+    packages=["scripts/jviewscan", "scripts/jviewcopy","scripts/build_all","common"],  # Required
     # Specify which Python versions you support. In contrast to the
     # 'Programming Language' classifiers above, 'pip install' will check this
     # and refuse to install the project if the version does not match. See
@@ -159,6 +159,8 @@ setup(
     entry_points={  # Optional
         "console_scripts": [
             "jviewscan=scripts.jviewscan.command_line:main",
+            "jviewscan=scripts.jviewcopy.command_line:main",
+            "build_all=scripts.build_all.command_line:main",
         ],
     }
     

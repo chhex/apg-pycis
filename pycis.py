@@ -10,7 +10,7 @@ def do():
     arg_parser = argparse.ArgumentParser(description=dsc,
                                             formatter_class=argparse.ArgumentDefaultsHelpFormatter, add_help=False)
     arg_parser.add_argument('-p','--package',  help="Package see scripts directory ", 
-        choices=['scripts.jviewscan','scripts.jviewcopy'], default='scripts.jviewscan')
+        choices=['scripts.jviewscan','scripts.jviewcopy','scripts.build_all'], default='scripts.jviewscan')
     arg_parser.add_argument('--info',  help="Shows the help", action='store_true')
     args, left = arg_parser.parse_known_args()
     if args.info:
