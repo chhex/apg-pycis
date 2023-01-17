@@ -19,6 +19,12 @@ def dir_path(path):
     else:
         raise argparse.ArgumentTypeError("Not a readable directory: %s " % path)
 
+def file_path(path):
+    if os.path.isfile(path):
+        return path
+    else:
+        raise argparse.ArgumentTypeError("Not a readable file: %s " % path)
+
 def exe_path(path):
     if path == "mvn":
         return path
