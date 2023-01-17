@@ -159,7 +159,7 @@ setup(
     entry_points={  # Optional
         "console_scripts": [
             "jviewscan=scripts.jviewscan.command_line:main",
-            "jviewscan=scripts.jviewcopy.command_line:main",
+            "jviewcopy=scripts.jviewcopy.command_line:main",
             "build_all=scripts.build_all.command_line:main",
         ],
     }
