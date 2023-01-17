@@ -78,7 +78,7 @@ def main():
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument('-path', type=dir_path, default=os.getcwd(),
                             help="Root directory of build")
-    arg_parser.add_argument('-config', type=dir_path, default=os.path.join(os.getcwd(),"testconfig.ini"),
+    arg_parser.add_argument('-config', type=file_path, default=os.path.join(os.getcwd(),"testconfig.ini"),
                             help="Config File")
     arg_parser.add_argument('-maven', type=exe_path, default="mvn", 
                             help="Maven executable ")
