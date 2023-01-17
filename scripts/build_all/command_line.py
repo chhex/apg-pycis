@@ -103,5 +103,6 @@ def main():
     # Gradle Build 
     if not args.skipGradle:
         to_build = config.getList('GRADLE','modules')
+        print(to_build)
         print(len(to_build))
         build_gradle_modules(args,remove_module_paths(to_build),root_dir)
