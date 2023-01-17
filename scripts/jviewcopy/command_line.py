@@ -1,6 +1,6 @@
 
 import argparse
-import glob
+from dataclasses import dataclass
 import os
 import shutil
 import sys
@@ -10,33 +10,39 @@ import jenkins
 from common import run
 from common import prompt_passw
 
-def scan_and_print(module_name, args, found_files):
-    curr_dir = os.getcwd()
-    os.chdir(f"./%s" % module_name)
-    file_glob = args.file_glob
-    source_filters = args.scan
-    print(f"Scanning module: %s" % (module_name))
-    found = []
-    files_to_scan = glob.glob(file_glob, recursive=True)
-    for fs in files_to_scan:    
-        with open(fs) as f:
-            print("Searching file: %s" % fs)
-            for source_filter in source_filters:
-                if source_filter in f.read():
-                    print(f"File found: %s which matches %s" % (fs,source_filter))
-                    found.append(f"%s" % fs)
-    if len(found) > 0:
-        found_files[module_name] = found
-    print("**** Done")
-    os.chdir(curr_dir)
+@dataclass
+class Module:
+    name: str
+    branch: str
 
+def cvs_from_hudson(xml):
+    module_locations = xml.find('moduleLocations') 
+    cvs_modules = module_locations.find_all('hudson.scm.ModuleLocationImpl')
+    modules = []
+    for i in range(len(cvs_modules)):
+        cvs_remote_name= cvs_modules[i].module.contents[0]
+        branch = cvs_modules[i].branch.contents[0]
+        module = Module(name=cvs_remote_name,branch=branch)
+        modules.append(module)
+    return modules
+
+def cvs_from_jenkins(xml):
+    hudson_cvs_repo = xml.scm.repositories.find('hudson.scm.CvsRepository') 
+    repo_item = hudson_cvs_repo.repositoryItems.find('hudson.scm.CvsRepositoryItem')
+    cvs_modules = repo_item.modules.find_all('hudson.scm.CvsModule')
+    source_branch = repo_item.location.locationName.contents[0]
+    modules = []
+    for i in range(len(cvs_modules)):
+        cvs_remote_name= cvs_modules[i].remoteName.contents[0]
+        module = Module(name=cvs_remote_name,branch=source_branch)
+        modules.append(module)
+    return modules
 
 def main():
     dsc = """This script takes the all the build Jobs from a Jenkins (JENKINS_URL) View (VIEW_NAME) and
     ,assuming that source code is CVS (CVS_URI) backed, checks the modules out in a temporary directory
-    and scans (SCAN) and reports the code according the file glob (FILE_GLOB) an a per module basis 
-    and reports found ocurrencies of the SCAN strings.  The selection of the Jobs
-    in the view (VIEW_HAME) can be additionally filtered (JOB_FILTER)
+    and copy the modules using rsync to a destination directory, ignoring the ide and vcs specific files / diretories
+    The selection of the Jobs in the view (VIEW_HAME) can be additionally filtered (JOB_FILTER)
     The scripts runs with defaults without any additional arguments, expect for the Jenkins Password (PASSWORD)
 """
 
@@ -49,8 +55,9 @@ def main():
     arg_parser.add_argument('-v','--view_name', help="Jenkins View name", default="Java8Mig")
     arg_parser.add_argument('-c','--cvs_uri', help="Cvs Uri", default="cvs.apgsga.ch:/var/local/cvs/root")
     arg_parser.add_argument('-g','--file_glob', help="Globs of Files to be scanned", default="**/*.java")
-    arg_parser.add_argument('-s','--scan', help="Regex for with is to be scanned", nargs='+', default=["java.text.SimpleDateFormat"])
+    arg_parser.add_argument('-d','--dest_dir', help="Destination Directory", required=True)
     arg_parser.add_argument('-f','--job_filter', help="String with contains match to filter Jenkins Jobs", default=None)
+    arg_parser.add_argument('--hudson', help="Retrieve from Hudson", default=False)
     args = arg_parser.parse_args()
     # Work directory
     target_work_dir = tempfile.mkdtemp(prefix="cvscodescan-")
@@ -60,31 +67,28 @@ def main():
     cvs_env = os.environ.copy()
     cvs_env["CVSROOT"] = f":ext:%s@%s" % (args.user,args.cvs_uri)
     cvs_env["CVS_RSH"] = "ssh"
+    # File Path
+    path = os.path.abspath(__file__)
+    dir_path = os.path.dirname(path)
     # Jenkins Api 
     server = jenkins.Jenkins( args.jenkins_url, username=args.user, password=args.password.value)
     jobs = server.get_jobs(view_name=args.view_name)
-    found_files = {}
     for job in jobs:
         job_name = job["name"]
         if  args.job_filter and args.job_filter not in job_name:
             continue
         job_detail = server.get_job_config(job_name)
         xml = BeautifulSoup(job_detail, 'xml')
-        hudson_cvs_repo = xml.scm.repositories.find('hudson.scm.CvsRepository') 
-        repo_item = hudson_cvs_repo.repositoryItems.find('hudson.scm.CvsRepositoryItem')
-        cvs_modules = repo_item.modules.find_all('hudson.scm.CvsModule')
-        source_branch = repo_item.location.locationName.contents[0]
-        for i in range(len(cvs_modules)):
-            cvs_remote_name= cvs_modules[i].remoteName.contents[0]
-            run.run_subprocess(['cvs', '-q', 'co',  '-r', source_branch, cvs_remote_name], cvs_env)
-            scan_and_print(cvs_remote_name,args,found_files)
+        if 'javabuild' in args.jenkins_url:
+            modules = cvs_from_hudson(xml)
+        else:
+            modules = cvs_from_jenkins(xml)
+        for module in modules:
+          print(module)
+          run.run_subprocess(['cvs', '-q', 'co',  '-r', module.branch, module.name], cvs_env)
+          run.run_subprocess(['rsync', '-av', f"--exclude-from=%s/rsync_excludes.txt" % dir_path, os.path.join(target_work_dir, module.name), 
+              args.dest_dir], verbose=True)
     
     shutil.rmtree(target_work_dir)
-    print("Running command: ")
-    print(' '.join(sys.argv)) 
-    print("Results: ")
-    print(f"Number of modules with matches for search strings : %s with file glob: %s in Jenkins view %s: %s" % (args.scan, args.file_glob, args.view_name, len(found_files)))
-    for k,v  in found_files.items():
-        for file in v:
-            print("Module: %s, File %s" % (k,file))
-    
+    print("Done.")
+
