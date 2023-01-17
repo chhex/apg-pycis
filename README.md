@@ -14,7 +14,7 @@ Preconditions: Valid Python installation
 
 Install the Python Package from Git:
 
-`python -m pip install git+https://github.com/chhex/apg-pycis.git`
+`'python -m pip install git+https://github.com/chhex/apg-pycis.git'`
 
 If Python versions are controlled with pyenv:
 
