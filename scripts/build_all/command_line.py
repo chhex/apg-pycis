@@ -7,9 +7,9 @@ from pathlib import Path
 
 def remove_module_paths(modules_w_path):
     modules = []
-    if len(modules_w_path) == 0:
-        return modules
     for module_w_path in modules_w_path:
+        if module_w_path.isspace():
+            continue
         module , module_path = module_w_path.split(":")
         if module not in modules:
             modules.append(module)
@@ -103,6 +103,4 @@ def main():
     # Gradle Build 
     if not args.skipGradle:
         to_build = config.getList('GRADLE','modules')
-        print(to_build)
-        print(len(to_build))
         build_gradle_modules(args,remove_module_paths(to_build),root_dir)
