@@ -8,7 +8,7 @@ from pathlib import Path
 def remove_module_paths(modules_w_path):
     modules = []
     for module_w_path in modules_w_path:
-        if module_w_path.isspace():
+        if not module_w_path or module_w_path.isspace():    
             continue
         module , module_path = module_w_path.split(":")
         if module not in modules:
