@@ -70,9 +70,9 @@ def build_gradle_modules(args,modules,root_dir):
 def main():
     # Options
     arg_parser = argparse.ArgumentParser()
-    arg_parser.add_argument('-path', type=dir_path, default=os.path.dirname(os.path.realpath(__file__)),
+    arg_parser.add_argument('-path', type=dir_path, default=os.getcwd(),
                             help="Root directory of build")
-    arg_parser.add_argument('-config', type=dir_path, default=os.path.join(os.path.dirname(os.path.realpath(__file__)),"testconfig.ini"),
+    arg_parser.add_argument('-config', type=dir_path, default=os.path.join(os.getcwd(),"testconfig.ini"),
                             help="Config File")
     arg_parser.add_argument('-maven', type=exe_path, default="mvn", 
                             help="Maven executable ")
