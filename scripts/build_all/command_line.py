@@ -5,6 +5,10 @@ import subprocess
 import os
 from pathlib import Path
 
+class SaneFormatter(argparse.RawTextHelpFormatter, 
+                    argparse.ArgumentDefaultsHelpFormatter):
+    pass
+
 def remove_module_paths(modules_w_path):
     modules = []
     for module_w_path in modules_w_path:
@@ -88,18 +92,14 @@ def main():
     dsc = """ This script builds all modules according to a configuration file,
     located in the root directory,  default
     testconfig.ini, with entry for Maven builds for example like:
-    \n
     [MAVEN]
-    \n
-        modules =   com.affichage.common.maven.parentpom, ibus-dm-bom, ibus-dm-pom, 
-    \n
-            com.affichage.common.maven.dao.parentpom
-    \n
+    modules =   com.affichage.common.maven.parentpom, ibus-dm-bom, ibus-dm-pom, 
+                com.affichage.common.maven.dao.parentpom
     and for Gradle with the [GRADLE] key
 """
 
     arg_parser = argparse.ArgumentParser(description=dsc,
-                                            formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+                                            formatter_class=SaneFormatter)
     # Options
     arg_parser.add_argument('-path', type=dir_path, default=os.getcwd(),
                             help="Root directory of build")
