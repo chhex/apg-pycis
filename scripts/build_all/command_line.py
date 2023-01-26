@@ -85,11 +85,16 @@ def build_gradle_modules(args,modules,root_dir):
 
 def main():
     
-    dsc = """ This script builds all Modules in a Root directory according to a configuration file, default
+    dsc = """ This script builds all modules according to a configuration file,
+    located in the root directory,  default
     testconfig.ini, with entry for Maven builds for example like:
+
     [MAVEN]
+
         modules =   com.affichage.common.maven.parentpom, ibus-dm-bom, ibus-dm-pom, 
+
             com.affichage.common.maven.dao.parentpom
+
     and for Gradle with the [GRADLE] key
 """
 
