@@ -60,11 +60,12 @@ def build_maven_modules(args,modules,root_dir):
             process_args_to_run =  ['cmd.exe', '/c', "{0} {1}".format(args.maven,'').join(process_args)]
         else:
             stripped = list(map(str.strip, process_args))
+            my_env = os.environ.copy()
             if args.jdk:
-                process_args_to_run.append(f"export JAVA_HOME=%s" % args.jdk)
+                my_env["JAVA_HOME"] = args.jdk
             process_args_to_run.append(args.maven)
             process_args_to_run.extend(stripped)
-        rt = subprocess.call(process_args_to_run)
+        rt = subprocess.call(process_args_to_run,env=my_env)
         if rt != 0:
             exit(rt)
         if not root_dir == work_dir:
