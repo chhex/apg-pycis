@@ -63,7 +63,7 @@ def build_maven_modules(args,modules,root_dir):
             if args.jdk:
                 process_args_to_run.append(f"JAVA_HOME=%s" % args.jdk)
             process_args_to_run.append(args.maven)
-            process_args_to_run.append(stripped)
+            process_args_to_run.extend(stripped)
         rt = subprocess.call(process_args_to_run)
         if rt != 0:
             exit(rt)
