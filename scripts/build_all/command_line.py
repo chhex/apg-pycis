@@ -88,13 +88,13 @@ def main():
     dsc = """ This script builds all modules according to a configuration file,
     located in the root directory,  default
     testconfig.ini, with entry for Maven builds for example like:
-
+    \n
     [MAVEN]
-
+    \n
         modules =   com.affichage.common.maven.parentpom, ibus-dm-bom, ibus-dm-pom, 
-
+    \n
             com.affichage.common.maven.dao.parentpom
-
+    \n
     and for Gradle with the [GRADLE] key
 """
 
@@ -109,9 +109,9 @@ def main():
                             help="Maven executable ")
     arg_parser.add_argument('-jdk', type=exe_path, 
                             help="Alternative Jdk path for Maven Builds")            
-    arg_parser.add_argument('--publish', action='store_true', default=False)
-    arg_parser.add_argument('--skipMaven', action='store_true', default=False)
-    arg_parser.add_argument('--skipGradle', action='store_true', default=False)
+    arg_parser.add_argument('--publish', help="publish artifact to repo",action='store_true', default=False)
+    arg_parser.add_argument('--skipMaven', help="Skip the maven builds", action='store_true', default=False)
+    arg_parser.add_argument('--skipGradle', help="Skip the gradle builds", action='store_true', default=False)
     args = arg_parser.parse_args()
     if not Path(args.config).is_file():
         print(f"%s is not a File") % args.config
