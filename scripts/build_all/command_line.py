@@ -16,6 +16,8 @@ def remove_module_paths(modules_w_path):
     return modules
 
 def dir_path(path):
+    if path == None:
+        return path
     if os.path.isdir(path):
         return path
     else:
@@ -40,10 +42,15 @@ def build_maven_modules(args,modules,root_dir):
         work_dir = os.path.join(root_dir, module)
         if not root_dir == work_dir:
             os.chdir(work_dir)
+        process_args = ['clean ']
+        if args.jdk:
+            process_args.append(f"JAVA_HOME=%s" % args.jdk)
+            process_args.append("-Dmaven.compiler.fork=true")
+            process_args.append(f"-Dmaven.compiler.executable=%s/bin/javac" % args.jdk)
         if args.publish:
-            process_args = ['clean ', 'deploy ']
+            process_args.append('deploy')
         else:
-             process_args = ['clean ', 'install ']
+             process_args.append('install')
         process_args_to_run = []
         if os.name == 'nt':
             process_args_to_run =  ['cmd.exe', '/c', "{0} {1}".format(args.maven,'').join(process_args)]
@@ -57,6 +64,7 @@ def build_maven_modules(args,modules,root_dir):
             os.chdir(root_dir)
 
 def build_gradle_modules(args,modules,root_dir):
+    # TODO : support alterntative Jdk locations for Gradle Builds , see Maven builds
     for module in modules:
         work_dir = os.path.join(root_dir, module)
         if not root_dir == work_dir:
@@ -76,14 +84,26 @@ def build_gradle_modules(args,modules,root_dir):
             exit(rt)
 
 def main():
+    
+    dsc = """ This script builds all Modules in a Root directory according to a configuration file, default
+    testconfig.ini, with entry for Maven builds for example like:
+    [MAVEN]
+        modules =   com.affichage.common.maven.parentpom, ibus-dm-bom, ibus-dm-pom, 
+            com.affichage.common.maven.dao.parentpom
+    and for Gradle with the [GRADLE] key
+"""
+
+    arg_parser = argparse.ArgumentParser(description=dsc,
+                                            formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     # Options
-    arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument('-path', type=dir_path, default=os.getcwd(),
                             help="Root directory of build")
     arg_parser.add_argument('-config', type=file_path, default=os.path.join(os.getcwd(),"testconfig.ini"),
                             help="Config File")
     arg_parser.add_argument('-maven', type=exe_path, default="mvn", 
                             help="Maven executable ")
+    arg_parser.add_argument('-jdk', type=exe_path, 
+                            help="Alternative Jdk path for Maven Builds")            
     arg_parser.add_argument('--publish', action='store_true', default=False)
     arg_parser.add_argument('--skipMaven', action='store_true', default=False)
     arg_parser.add_argument('--skipGradle', action='store_true', default=False)
