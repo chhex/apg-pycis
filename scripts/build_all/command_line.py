@@ -48,7 +48,6 @@ def build_maven_modules(args,modules,root_dir):
             os.chdir(work_dir)
         process_args = ['clean ']
         if args.jdk:
-            process_args.append(f"JAVA_HOME=%s" % args.jdk)
             process_args.append("-Dmaven.compiler.fork=true")
             process_args.append(f"-Dmaven.compiler.executable=%s/bin/javac" % args.jdk)
         if args.publish:
@@ -57,10 +56,14 @@ def build_maven_modules(args,modules,root_dir):
              process_args.append('install')
         process_args_to_run = []
         if os.name == 'nt':
+            # TODO : Support alternative jdk location for windows
             process_args_to_run =  ['cmd.exe', '/c', "{0} {1}".format(args.maven,'').join(process_args)]
         else:
             stripped = list(map(str.strip, process_args))
-            process_args_to_run =  [args.maven] + stripped
+            if args.jdk:
+                process_args_to_run.append(f"JAVA_HOME=%s" % args.jdk)
+            process_args_to_run.append(args.maven)
+            process_args_to_run.append(stripped)
         rt = subprocess.call(process_args_to_run)
         if rt != 0:
             exit(rt)
