@@ -91,7 +91,7 @@ def main():
     
     dsc = """ This script builds all modules according to a configuration file,
     located in the root directory,  default
-    testconfig.ini, with entry for Maven builds for example like:
+    testconfig.ini, with a entry for Maven builds like:
     [MAVEN]
     modules =   com.affichage.common.maven.parentpom, ibus-dm-bom, ibus-dm-pom, 
                 com.affichage.common.maven.dao.parentpom
@@ -107,7 +107,7 @@ def main():
                             help="Config File")
     arg_parser.add_argument('-maven', type=exe_path, default="mvn", 
                             help="Maven executable ")
-    arg_parser.add_argument('-jdk', type=exe_path, 
+    arg_parser.add_argument('-jdk', type=dir_path, 
                             help="Alternative Jdk path for Maven Builds")            
     arg_parser.add_argument('--publish', help="publish artifact to repo",action='store_true', default=False)
     arg_parser.add_argument('--skipMaven', help="Skip the maven builds", action='store_true', default=False)
