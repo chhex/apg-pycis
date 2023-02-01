@@ -112,7 +112,9 @@ def main():
     arg_parser.add_argument('-maven', type=exe_path, default="mvn", 
                             help="Maven executable ")
     arg_parser.add_argument('-jdk', type=dir_path, 
-                            help="Alternative Jdk path for Maven Builds")            
+                            help="Alternative Jdk path for Maven Builds")     
+    arg_parser.add_argument('-modules', nargs='+', default=None, 
+                            help="Specific module(s) to build, instead of all modules")
     arg_parser.add_argument('--publish', help="publish artifact to repo",action='store_true', default=False)
     arg_parser.add_argument('--skipMaven', help="Skip the maven builds", action='store_true', default=False)
     arg_parser.add_argument('--skipGradle', help="Skip the gradle builds", action='store_true', default=False)
@@ -123,7 +125,10 @@ def main():
         exit(1)
     config = configparser.ConfigParser(converters={'List': lambda x: [i.strip() for i in x.split(',')]})
     config.read(args.config)
-    to_build = config.getList('MAVEN','modules')
+    if args.modules == None:
+        to_build = config.getList('MAVEN','modules')
+    else:
+        to_build = args.modules
     os.chdir(args.path)
     root_dir = os.getcwd()
     # Maven Builds 
