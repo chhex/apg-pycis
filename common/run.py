@@ -3,6 +3,7 @@ import subprocess
 
 
 def run_subprocess(cmd, env =  os.environ.copy(), verbose = False):
+    print("About to run command: %s with enviroment: " % (" ".join(cmd),env ))
     output = subprocess.run(cmd, capture_output=True, text=True, env=env)
     if verbose:
         print(output.stdout)
