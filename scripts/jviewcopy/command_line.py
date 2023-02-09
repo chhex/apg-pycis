@@ -3,7 +3,6 @@ import argparse
 from dataclasses import dataclass
 import os
 import shutil
-import sys
 import tempfile
 from bs4 import BeautifulSoup
 import jenkins
@@ -54,7 +53,6 @@ def main():
     arg_parser.add_argument('-j', '--jenkins_url',  help='Jenkins url', default="https://jenkins.apgsga.ch/")
     arg_parser.add_argument('-v','--view_name', help="Jenkins View name", default="Java8Mig")
     arg_parser.add_argument('-c','--cvs_uri', help="Cvs Uri", default="cvs.apgsga.ch:/var/local/cvs/root")
-    arg_parser.add_argument('-g','--file_glob', help="Globs of Files to be scanned", default="**/*.java")
     arg_parser.add_argument('-d','--dest_dir', help="Destination Directory", required=True)
     arg_parser.add_argument('-f','--job_filter', help="String with contains match to filter Jenkins Jobs", default=None)
     arg_parser.add_argument('--hudson', help="Retrieve from Hudson", default=False)

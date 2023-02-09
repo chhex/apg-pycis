@@ -4,6 +4,7 @@ import configparser
 import subprocess
 import os
 from pathlib import Path
+from common import validation
 
 class SaneFormatter(argparse.RawTextHelpFormatter, 
                     argparse.ArgumentDefaultsHelpFormatter):
@@ -19,27 +20,6 @@ def remove_module_paths(modules_w_path):
             modules.append(module)
     return modules
 
-def dir_path(path):
-    if path == None:
-        return path
-    if os.path.isdir(path):
-        return path
-    else:
-        raise argparse.ArgumentTypeError("Not a readable directory: %s " % path)
-
-def file_path(path):
-    if os.path.isfile(path):
-        return path
-    else:
-        raise argparse.ArgumentTypeError("Not a readable file: %s " % path)
-
-def exe_path(path):
-    if path == "mvn":
-        return path
-    if os.path.isfile(path) and os.access(path,os.X_OK):
-        return path
-    else:
-        raise argparse.ArgumentTypeError("Not a executable file {0}".format(path))
 
 def build_maven_modules(args,modules,root_dir):
     for module in modules:
@@ -105,13 +85,13 @@ def main():
     arg_parser = argparse.ArgumentParser(description=dsc,
                                             formatter_class=SaneFormatter)
     # Options
-    arg_parser.add_argument('-path', type=dir_path, default=os.getcwd(),
+    arg_parser.add_argument('-path', type=validation.dir_path, default=os.getcwd(),
                             help="Root directory of build")
-    arg_parser.add_argument('-config', type=file_path, default=os.path.join(os.getcwd(),"testconfig.ini"),
+    arg_parser.add_argument('-config', type=validation.file_path, default=os.path.join(os.getcwd(),"testconfig.ini"),
                             help="Config File")
-    arg_parser.add_argument('-maven', type=exe_path, default="mvn", 
+    arg_parser.add_argument('-maven', type=validation.exe_path, default="mvn", 
                             help="Maven executable ")
-    arg_parser.add_argument('-jdk', type=dir_path, 
+    arg_parser.add_argument('-jdk', type=validation.dir_path, 
                             help="Alternative Jdk path for Maven Builds")     
     arg_parser.add_argument('-modules', nargs='+', default=None, 
                             help="Specific module(s) to build, instead of all modules")

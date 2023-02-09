@@ -35,7 +35,7 @@ setup(
     # For a discussion on single-sourcing the version across setup.py and the
     # project code, see
     # https://packaging.python.org/guides/single-sourcing-package-version/
-    version="0.2.12",  # Required
+    version="0.2.13",  # Required
     # This is a one-line description or tagline of what your project does. This
     # corresponds to the "Summary" metadata field:
     # https://packaging.python.org/specifications/core-metadata/#summary
@@ -142,7 +142,8 @@ setup(
     # If there are data files included in your packages that need to be
     # installed, specify them here.
     package_data={  # Optional
-        "scripts/jviewcopy": ['*.txt']
+        "scripts/jviewcopy": ['*.txt'],
+        "scripts/rdircopy": ['*.txt']
     },
     # Although 'package_data' is the preferred approach, in some case you may
     # need to place data files outside of your packages. See:
@@ -162,6 +163,7 @@ setup(
             "jviewscan=scripts.jviewscan.command_line:main",
             "jviewcopy=scripts.jviewcopy.command_line:main",
             "build_all=scripts.build_all.command_line:main",
+            "rdircopy=scripts.rdircopy.command_line:main",
         ],
     }
     

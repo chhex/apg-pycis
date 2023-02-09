@@ -30,6 +30,8 @@ Example for non interactive modus:
 
 ### Copying the repo
 
+The following process is above all for testing
+
 Clone from Git:
 
 `git clone https://github.com/chhex/apg-pycis.git`
@@ -38,7 +40,7 @@ To print out help:
 
 `./pycis.py --help`
 
-Example for non interactive modus:
+Invoke a specific entry point:
 
 `./pycis.py -s com.teamdev.jxbrowser  -v "Framework Builds" -f "Forms2Java Version Java8Mig 5.x"`
 
