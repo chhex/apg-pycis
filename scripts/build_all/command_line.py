@@ -51,7 +51,7 @@ def build_maven_modules(config,args,modules,root_dir):
                 my_env["JAVA_HOME"] = alt_jdk
             process_args_to_run.append(args.maven)
             process_args_to_run.extend(stripped)
-        run.run_subprocess(process_args_to_run, my_env)
+        run.run_subprocess(cmd=process_args_to_run, env=my_env, verbose=True)
         if not root_dir == work_dir:
             os.chdir(root_dir)
 
@@ -71,7 +71,7 @@ def build_gradle_modules(args,modules,root_dir):
         else:
             stripped = list(map(str.strip, process_args))
             process_args_to_run = ['./gradlew'] + stripped
-        run.run_subprocess(process_args_to_run)
+        run.run_subprocess(cmd=process_args_to_run, verbose=True)
 
 def main():
     
