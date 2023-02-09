@@ -21,15 +21,20 @@ def remove_module_paths(modules_w_path):
     return modules
 
 
-def build_maven_modules(args,modules,root_dir):
+def build_maven_modules(config,args,modules,root_dir):
+    alt_jdk = None
+    if config.has_option("JDK","path"):
+        alt_jdk = config["JDK"]["path"]
+    if args.jdk:
+        alt_jdk = args.jdk
     for module in modules:
         work_dir = os.path.join(root_dir, module)
         if not root_dir == work_dir:
             os.chdir(work_dir)
         process_args = ['clean ']
-        if args.jdk:
+        if alt_jdk:
             process_args.append("-Dmaven.compiler.fork=true")
-            process_args.append(f"-Dmaven.compiler.executable=%s/bin/javac" % args.jdk)
+            process_args.append(f"-Dmaven.compiler.executable=%s/bin/javac" % alt_jdk)
         if args.publish:
             process_args.append('deploy')
         else:
@@ -41,8 +46,8 @@ def build_maven_modules(args,modules,root_dir):
         else:
             stripped = list(map(str.strip, process_args))
             my_env = os.environ.copy()
-            if args.jdk:
-                my_env["JAVA_HOME"] = args.jdk
+            if alt_jdk:
+                my_env["JAVA_HOME"] = alt_jdk
             process_args_to_run.append(args.maven)
             process_args_to_run.extend(stripped)
         rt = subprocess.call(process_args_to_run,env=my_env)
@@ -113,7 +118,7 @@ def main():
     root_dir = os.getcwd()
     # Maven Builds 
     if not args.skipMaven:
-        build_maven_modules(args,to_build,root_dir)
+        build_maven_modules(config,args,to_build,root_dir)
     # Gradle Build 
     if not args.skipGradle:
         to_build = config.getList('GRADLE','modules')
