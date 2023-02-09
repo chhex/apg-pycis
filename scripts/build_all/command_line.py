@@ -5,6 +5,7 @@ import subprocess
 import os
 from pathlib import Path
 from common import validation
+from common import run
 
 class SaneFormatter(argparse.RawTextHelpFormatter, 
                     argparse.ArgumentDefaultsHelpFormatter):
@@ -50,9 +51,7 @@ def build_maven_modules(config,args,modules,root_dir):
                 my_env["JAVA_HOME"] = alt_jdk
             process_args_to_run.append(args.maven)
             process_args_to_run.extend(stripped)
-        rt = subprocess.call(process_args_to_run,env=my_env)
-        if rt != 0:
-            exit(rt)
+        run.run_subprocess(process_args_to_run, my_env)
         if not root_dir == work_dir:
             os.chdir(root_dir)
 
@@ -72,9 +71,7 @@ def build_gradle_modules(args,modules,root_dir):
         else:
             stripped = list(map(str.strip, process_args))
             process_args_to_run = ['./gradlew'] + stripped
-        rt = subprocess.call(process_args_to_run)
-        if rt != 0:
-            exit(rt)
+        run.run_subprocess(process_args_to_run)
 
 def main():
     
