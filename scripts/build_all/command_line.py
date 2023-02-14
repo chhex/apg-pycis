@@ -36,10 +36,7 @@ def build_maven_modules(config,args,modules,root_dir):
         if alt_jdk:
             process_args.append("-Dmaven.compiler.fork=true")
             process_args.append(f"-Dmaven.compiler.executable=%s/bin/javac" % alt_jdk)
-        if args.publish:
-            process_args.append('deploy')
-        else:
-             process_args.append('install')
+        process_args.extend(args.mvn)
         process_args_to_run = []
         if os.name == 'nt':
             # TODO : Support alternative jdk location for windows
@@ -61,15 +58,10 @@ def build_gradle_modules(args,modules,root_dir):
         work_dir = os.path.join(root_dir, module)
         if not root_dir == work_dir:
             os.chdir(work_dir)
-        if args.publish:
-            process_args = ['clean ', 'build ', 'publishToMavenLocal ', 'publish ', '-PCIBUILD','--info ', '--stacktrace ']
-        else:
-            process_args = ['clean ', 'build ', 'publishToMavenLocal ', '-PCIBUILD', '--info ', '--stacktrace ']
-        process_args_to_run = []
         if os.name == 'nt':
-            process_args_to_run = ['cmd.exe', '/c', f"gradlew.bat %s" % ''.join(process_args)]
+            process_args_to_run = ['cmd.exe', '/c', f"gradlew.bat %s" % ''.join(args.gradle)]
         else:
-            stripped = list(map(str.strip, process_args))
+            stripped = list(map(str.strip, args.gradle))
             process_args_to_run = ['./gradlew'] + stripped
         run.call_subprocess(cmd=process_args_to_run, verbose=True)
 
@@ -97,7 +89,10 @@ def main():
                             help="Alternative Jdk path for Maven Builds")     
     arg_parser.add_argument('-modules', nargs='+', default=None, 
                             help="Specific module(s) to build, instead of all modules")
-    arg_parser.add_argument('--publish', help="publish artifact to repo",action='store_true', default=False)
+    arg_parser.add_argument('-mvn', nargs='+', default=['clean', 'install'], 
+                            help="Specific maven build arguments")
+    arg_parser.add_argument('-gradle', nargs='+', default=['clean ', 'build ', 'publishToMavenLocal ', '-PCIBUILD', '--info ', '--stacktrace '], 
+                            help="Specific gradle build arguments")                    
     arg_parser.add_argument('--skipMaven', help="Skip the maven builds", action='store_true', default=False)
     arg_parser.add_argument('--skipGradle', help="Skip the gradle builds", action='store_true', default=False)
     args = arg_parser.parse_args()

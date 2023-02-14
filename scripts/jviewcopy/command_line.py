@@ -39,8 +39,9 @@ def cvs_from_jenkins(xml):
 
 def main():
     dsc = """This script takes the all the build Jobs from a Jenkins (JENKINS_URL) View (VIEW_NAME) and
-    ,assuming that source code is CVS (CVS_URI) backed, checks the modules out in a temporary directory
-    and copy the modules using rsync to a destination directory, ignoring the ide and vcs specific files / diretories
+    ,assuming that source code is CVS (CVS_URI) backed. For all the matched Job, the script downloads the Jenkins Job configuration
+    file, looks for the scm entry (Hudson or Jenkins), retrieves the scm information, checks the module out in a temporary directory
+    and copies it using rsync to a destination directory, ignoring the ide and vcs specific files / diretories
     The selection of the Jobs in the view (VIEW_HAME) can be additionally filtered (JOB_FILTER)
     The scripts runs with defaults without any additional arguments, expect for the Jenkins Password (PASSWORD)
 """
