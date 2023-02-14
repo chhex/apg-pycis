@@ -37,6 +37,8 @@ def build_maven_modules(config,args,modules,root_dir):
             process_args.append("-Dmaven.compiler.fork=true")
             process_args.append(f"-Dmaven.compiler.executable=%s/bin/javac" % alt_jdk)
         process_args.extend(args.mvn)
+        if args.mvnProfile:
+            process_args.append(f"-P%s"% args.mvnProfile)
         process_args_to_run = []
         if os.name == 'nt':
             # TODO : Support alternative jdk location for windows
