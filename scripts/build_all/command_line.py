@@ -48,6 +48,7 @@ def build_maven_modules(config,args,modules,root_dir):
             my_env = os.environ.copy()
             if alt_jdk:
                 my_env["JAVA_HOME"] = alt_jdk
+            process_args_to_run.append("mvn")
             process_args_to_run.extend(stripped)
         run.call_subprocess(cmd=process_args_to_run, env=my_env, verbose=True)
         if not root_dir == work_dir:
