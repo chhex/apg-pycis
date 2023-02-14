@@ -32,7 +32,7 @@ def build_maven_modules(config,args,modules,root_dir):
         work_dir = os.path.join(root_dir, module)
         if not root_dir == work_dir:
             os.chdir(work_dir)
-        process_args = ['clean ']
+        process_args = []
         if alt_jdk:
             process_args.append("-Dmaven.compiler.fork=true")
             process_args.append(f"-Dmaven.compiler.executable=%s/bin/javac" % alt_jdk)
