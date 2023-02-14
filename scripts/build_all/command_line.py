@@ -91,6 +91,8 @@ def main():
                             help="Specific module(s) to build, instead of all modules")
     arg_parser.add_argument('-mvn', nargs='+', default=['clean', 'install'], 
                             help="Specific maven build arguments")
+    arg_parser.add_argument('-mvnProfile',  default=None, 
+                            help="Specific maven profile to build")
     arg_parser.add_argument('-gradle', nargs='+', default=['clean ', 'build ', 'publishToMavenLocal ', '-PCIBUILD', '--info ', '--stacktrace '], 
                             help="Specific gradle build arguments")                    
     arg_parser.add_argument('--skipMaven', help="Skip the maven builds", action='store_true', default=False)
