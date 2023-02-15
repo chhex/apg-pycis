@@ -11,7 +11,7 @@ maintainers = [{ name = "C. Henrici", email = "chhenrici@gmail.com" }]
 
 classifiers = [
     "Development Status :: 3 - Alpha",
-    "Intended Audience :: Apg Devops Developers",
+    "Intended Audience :: Developers",
     "Topic :: Software Development :: CI Tools",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
