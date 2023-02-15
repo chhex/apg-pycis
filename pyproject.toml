@@ -28,18 +28,10 @@ dependencies = [
     "lxml==4.9.1",
 ]
 
-packages = [
-    "scripts/jviewscan",
-    "scripts/jviewcopy",
-    "scripts/build_all",
-    "scripts/rdircopy",
-    "common",
-]
+[tool.setuptools.packages.find]
+where = ["scripts", "common"]
+include-package-data = true
 
-
-[tool.setuptools.package-data]
-scripts.jviewscan = ["*.txt"]
-scripts.rdircopy = ["*.txt"]
 
 [project.optional-dependencies]
 
