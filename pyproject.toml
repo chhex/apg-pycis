@@ -1,6 +1,6 @@
 [project]
 name = "apg-pycis"
-version = "0.3.32"
+version = "0.3.33"
 description = "A collection of python scripts for Apg Cis"
 readme = "README.md"
 requires-python = ">=3.6"
@@ -45,9 +45,9 @@ documentation = "https://github.com/chhex/apg-pycis"
 
 
 [project.scripts]
-jviewscan = 'command_line:main'
-jviewcopy = 'command_line:main'
-build_all = 'command_line:main'
-rdircopy = 'command_line:main'
+jviewscan = 'jviewscan.command_line:main'
+jviewcopy = 'jviewcopy.command_line:main'
+build_all = 'build_all.command_line:main'
+rdircopy = 'rdircopy.command_line:main'
 
 
