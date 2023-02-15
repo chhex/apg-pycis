@@ -36,10 +36,10 @@ packages = [
     "common",
 ]
 
-include = [
-    "scripts/jviewcopy/rsync_excludes.txt",
-    "scripts/rdircopy/rsync_excludes.template.txt",
-]
+
+[tool.setuptools.package-data]
+scripts.jviewscan = ["*.txt"]
+scripts.rdircopy = ["*.txt"]
 
 [project.optional-dependencies]
 
