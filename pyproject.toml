@@ -1,6 +1,6 @@
 [project]
 name = "apg-pycis"
-version = "0.3.30"
+version = "0.3.31"
 description = "A collection of python scripts for Apg Cis"
 readme = "README.md"
 requires-python = ">=3.6"
@@ -32,7 +32,8 @@ dependencies = [
 where = ["scripts", "common"]
 
 [tool.setuptools.package-data]
-"*" = ["*.txt"]
+jviewcopy = ["*.txt"]
+rdircopy = ["*.txt"]
 
 
 [project.optional-dependencies]
