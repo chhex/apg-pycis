@@ -1,0 +1,64 @@
+[project]
+name = "apg-pycis"
+version = "0.3.26"
+description = "A collection of python scripts for Apg Cis"
+readme = "README.md"
+requires-python = ">=3.6"
+license = { file = "LICENSE" }
+keywords = ["APG", "devops", "dev"]
+authors = [{ name = "C.Henrici", email = "chhenrici@gmail.com" }]
+maintainers = [{ name = "C. Henrici", email = "chhenrici@gmail.com" }]
+
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Apg Devops Developers",
+    "Topic :: Software Development :: CI Tools",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3 :: Only",
+]
+
+# Requirements
+dependencies = [
+    "beautifulsoup4==4.11.1",
+    "python-jenkins==1.7.0",
+    "lxml==4.9.1",
+]
+
+packages = [
+    "scripts/jviewscan",
+    "scripts/jviewcopy",
+    "scripts/build_all",
+    "scripts/rdircopy",
+    "common",
+]
+
+include = [
+    "scripts/jviewcopy/rsync_excludes.txt",
+    "scripts/rdircopy/rsync_excludes.template.txt",
+]
+
+[project.optional-dependencies]
+
+[project.urls]
+homepage = "https://github.com/chhex/apg-pycis"
+repository = "https://github.com/chhex/apg-pycis"
+documentation = "https://github.com/chhex/apg-pycis"
+
+
+[project.scripts]
+jviewscan = 'scripts.jviewscan.command_line:main'
+jviewcopy = 'scripts.jviewcopy.command_line:main'
+build_all = 'scripts.build_all.command_line:main'
+rdircopy = 'scripts.rdircopy.command_line:main'
+
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool]
