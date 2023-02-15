@@ -1,6 +1,6 @@
 [project]
 name = "apg-pycis"
-version = "0.3.29"
+version = "0.3.30"
 description = "A collection of python scripts for Apg Cis"
 readme = "README.md"
 requires-python = ">=3.6"
@@ -30,7 +30,9 @@ dependencies = [
 
 [tool.setuptools.packages.find]
 where = ["scripts", "common"]
-include-package-data = true
+
+[tool.setuptools.package-data]
+"*" = ["*.txt"]
 
 
 [project.optional-dependencies]
@@ -48,8 +50,3 @@ build_all = 'scripts.build_all.command_line:main'
 rdircopy = 'scripts.rdircopy.command_line:main'
 
 
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
-[tool]
