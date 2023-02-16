@@ -23,9 +23,9 @@ classifiers = [
 
 # Requirements
 dependencies = [
-    "beautifulsoup4==4.11.1",
-    "python-jenkins==1.7.0",
-    "lxml==4.9.1",
+    "beautifulsoup4>=4.11.2",
+    "python-jenkins>=1.7.0",
+    "lxml>=4.9.2",
 ]
 
 [tool.setuptools.packages.find]

@@ -12,7 +12,7 @@ Preconditions: Valid Python installation
 
 ### As Package
 
-Install the Python Package from Git:
+Install the Python Script Packages from Git:
 
 `'python -m pip install git+https://github.com/chhex/apg-pycis.git'`
 
@@ -20,32 +20,47 @@ If Python versions are controlled with pyenv:
 
 `pyenv rehash`
 
-To print out help:
+There are currently the following 4 scripts avaibable:
+
+jviewcopy , see TODO more detailed description
+jviewscan , see TODO more detailed description
+build_all , see TODO more detailed description
+rdircopy , see TODO more detailed description 
+
+To print out help, for example:
 
 `jviewscan --help`
 
-Example for non interactive modus:
+Example:
 
 `jviewscan -s com.teamdev.jxbrowser  -v "Framework Builds" -f "Forms2Java Version Java8Mig 5.x"`
 
-### Copying the repo
+## Development
 
-The following process is above all for testing
+The following process is suggested:
 
-Clone from Git:
+clone from Git:
 
 `git clone https://github.com/chhex/apg-pycis.git`
 
-To print out help:
+Open the repository in your IDE, which supports Python.
 
-`./pycis.py --help`
+For local testing, cd the repo directory:
 
-Invoke a specific entry point:
+```python
+pip install --editable .
+source .venv/bin/activate
+pip install --editable .
+```
 
-`./pycis.py -s com.teamdev.jxbrowser  -v "Framework Builds" -f "Forms2Java Version Java8Mig 5.x"`
+Maybe you need to upgrade pip: `pip install --upgrade pip`
 
-## Development
+To check the installation: `which jviewcopy`
 
-TODO Describe development process
+It should point to `<repo_path>/.venv/bin/jviewcopy`
+
+To publish the packages, bump the version in pyproject.toml and commit and push the changes.
+
 
 ## Open Issues
+
